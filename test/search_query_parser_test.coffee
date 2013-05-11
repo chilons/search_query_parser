@@ -21,6 +21,7 @@ NAME_AND_MONEY                           = 'john total_orders:>$5'
 ILLEGAL_CHARACTER                        = 'john@doe.com'
 DOUBLE_QUOTED_COUNTRY                    = 'country:"United States"'
 SINGLE_QUOTED_COUNTRY                    = "country:'United States'"
+HE_WAS_CALLED_JAKE                       = """'he was called "jake"'"""
 
 exports['identifier retrieval'] = nodeunit.testCase
   "test name": (test) ->
@@ -187,8 +188,9 @@ exports['identifier retrieval'] = nodeunit.testCase
     tokens = [
       ['default', 'equals', 'he was called "jake"']
     ]
-    test.deepEqual tokens, SearchQueryParser.tokenize("""'he was called "jake"'""")
-    test.equal '"he was called \"jake\""', SearchQueryParser.build(tokens)
+
+    test.deepEqual tokens, SearchQueryParser.tokenize(HE_WAS_CALLED_JAKE)
+    test.equal HE_WAS_CALLED_JAKE, SearchQueryParser.build(tokens)
     test.done()
 
   "bare single quote in unqouted literal is accumulated": (test) ->
