@@ -79,24 +79,16 @@ class SearchQueryParser
 
     results
 
-  quote = (val) ->
-    return val unless val.indexOf(' ') > -1
-    return val if val.substr(0, 1) == '"' && val.substr(-1) == '"'
-    '"' + val + '"'
-
   @build: (tokens) ->
-    results = []
-    for [key, operator, value] in tokens
+    results = for [key, operator, value] in tokens
       component = "#{@TOKEN_TO_OPERATOR[operator]}#{@format(value)}"
 
-      if key == 'default'
-        component = quote component
-      else
-        component = "#{key}:#{quote component}"
+      unless key is 'default'
+        component = "#{key}:#{component}"
 
       if operator == 'not_equals'
         component = "-#{component}"
-      results.push component
+      component
 
     results.join ' '
 
@@ -111,15 +103,13 @@ class SearchQueryParser
       return "#{value.getUTCFullYear()}-#{pad value.getUTCMonth()+1}-#{pad value.getUTCDate()}"
 
     if value.indexOf? && value.indexOf(' ') != -1
-      startCharacter = value.slice(0, 1)
-      endCharacter = value.slice(-1)
-      if startCharacter == endCharacter
-        switch startCharacter
-          when "'"
-            value.replace(/'/g, "'")
-          when '"'
-            value.replace(/"/g, '"')
+      startChar = value.slice(0, 1)
+      endChar = value.slice(-1)
+      if startChar == endChar && startChar in ['"', "'"]
+        coreValue = value.slice(1, -1)
+        startChar + coreValue.replace(/#{startChar}/, "\\" + startChar) + startChar
       else
-        value.replace(/"/g, '"')
-    value
+        '"' + value.replace(/"/g, '\"') + '"'
+    else
+      value
 module.exports = SearchQueryParser
