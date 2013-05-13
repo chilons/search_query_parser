@@ -109,7 +109,7 @@ class SearchQueryParser
         coreValue = value.slice(1, -1)
         startChar + coreValue.replace(/#{startChar}/, "\\" + startChar) + startChar
       else
-        '"' + value.replace(/"/g, '\"') + '"'
+        '"' + value.replace(/"/g, '\\"') + '"'
     else
       value
 module.exports = SearchQueryParser

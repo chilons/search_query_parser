@@ -8,6 +8,8 @@ Pair = BareWord ':' Operator? Attribute
 Attribute = AnyValue
 AnyValue = Date / Numeric / String
 
+LineTerminator = [\u000A\u000D\u2028\u2029]
+
 Seperators = " "+ / (' '* [,|] ' '*)
 MultiValues = AnyValue (Seperators AnyValue)*
 GroupedValues = '(' MultiValues ')'
@@ -19,8 +21,33 @@ String = DoubleQuotedString / SingleQuotedString / BareWord
 Operator = '<=' / '>=' / '<' / '>'
 
 BareWord = [^\s'"(:] [^ "):]*
-DoubleQuotedString = '"' [^"]* '"'
-SingleQuotedString = "'" [^']* "'"
+DoubleQuotedString = '"' DoubleQuotedCharacter* '"'
+SingleQuotedString = "'" SingleQuotedCharacter* "'"
+
+DoubleQuotedCharacter =
+  !(["] / "\\" / LineTerminator) . /
+  "\\" CharacterEscapeSequence
+
+SingleQuotedCharacter =
+  !(['] / "\\" / LineTerminator) . /
+  "\\" CharacterEscapeSequence
+
+CharacterEscapeSequence =
+  SingleEscapeCharacter /
+  NonEscapeCharacter
+
+SingleEscapeCharacter =
+  ['"\\bfnrtv]
+
+NonEscapeCharacter =
+  !LineTerminator !EscapeCharacter .
+
+EscapeCharacter =
+  SingleEscapeCharacter /
+  Integer /
+  "x" /
+  "u"
+
 
 Integer = [0-9]+ & ([\s] / EOF)
 Date = [0-9] [0-9] [0-9] [0-9] "-" [0-9] [0-9]? "-" [0-9] [0-9]?

@@ -1,6 +1,9 @@
 nodeunit = require 'nodeunit'
 SearchQueryParser = require '../lib/search_query_parser'
 
+Parser = require '../lib/basic_parser'
+
+
 NAME                                     = 'bruce williams'
 NAME_AND_AGE                             = 'bruce williams age:16'
 NAME_QUOTED_AND_AGE                      = '"bruce williams" age:16'
@@ -21,7 +24,8 @@ NAME_AND_MONEY                           = 'john total_orders:>$5'
 ILLEGAL_CHARACTER                        = 'john@doe.com'
 DOUBLE_QUOTED_COUNTRY                    = 'country:"United States"'
 SINGLE_QUOTED_COUNTRY                    = "country:'United States'"
-HE_WAS_CALLED_JAKE                       = """'he was called "jake"'"""
+DOUBLE_IN_SINGLE_NESTED_JAKE             = """'he was called "jake"'"""
+DOUBLE_IN_DOUBLE_NESTED_JAKE             = '''"he was called \\"jake\\""'''
 
 exports['identifier retrieval'] = nodeunit.testCase
   "test name": (test) ->
@@ -184,13 +188,22 @@ exports['identifier retrieval'] = nodeunit.testCase
     test.equal NAME_WITH_NESTED_SINGLE_QUOTES, SearchQueryParser.build(tokens)
     test.done()
 
-  "nested double quote is accumulated": (test) ->
+  "nested double quote in single quotes": (test) ->
     tokens = [
       ['default', 'equals', 'he was called "jake"']
     ]
 
-    test.deepEqual tokens, SearchQueryParser.tokenize(HE_WAS_CALLED_JAKE)
-    test.equal HE_WAS_CALLED_JAKE, SearchQueryParser.build(tokens)
+    test.deepEqual tokens, SearchQueryParser.tokenize(DOUBLE_IN_SINGLE_NESTED_JAKE)
+    test.equal '"he was called \\"jake\\""', SearchQueryParser.build(tokens)
+    test.done()
+
+  "nested double quote in double quotes": (test) ->
+    tokens = [
+      ['default', 'equals', 'he was called "jake"']
+    ]
+    console.log Parser.parse(DOUBLE_IN_DOUBLE_NESTED_JAKE)
+    test.deepEqual tokens, SearchQueryParser.tokenize(DOUBLE_IN_DOUBLE_NESTED_JAKE)
+    test.equal DOUBLE_IN_DOUBLE_NESTED_JAKE, SearchQueryParser.build(tokens)
     test.done()
 
   "bare single quote in unqouted literal is accumulated": (test) ->
