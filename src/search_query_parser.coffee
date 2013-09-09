@@ -53,7 +53,9 @@ class SearchQueryParser
             word = parseFloat(node.innerText())
             false
           when "Date"
-            word = new Date(node.innerText())
+            innerText = node.innerText().split('-').map (val) ->
+              parseInt(val, 10)
+            word = new Date innerText[0], innerText[1] - 1, innerText[2]
             false
           when "String"
             if node.children[0].name == 'BareWord'
