@@ -49,8 +49,6 @@ task 'build:language_visualizer', 'compile the PEG into the language visualizer'
         promise.then(-> console.log "Compiled language #{matches[0]} to LanguageVisualizer destination.")
 
 task 'test', 'run the test suite', (options) ->
-  invoke 'build'
-
   runner = (require 'nodeunit').reporters.default
 
   muffin.run
