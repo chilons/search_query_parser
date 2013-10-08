@@ -21,6 +21,7 @@ NAME_AND_MONEY                           = 'john total_orders:>$5'
 ILLEGAL_CHARACTER                        = 'john@doe.com'
 DOUBLE_QUOTED_COUNTRY                    = 'country:"United States"'
 SINGLE_QUOTED_COUNTRY                    = "country:'United States'"
+MIXED_FLOAT_STRING                       = 'something:10.01_broken'
 
 exports['identifier retrieval'] = nodeunit.testCase
   "test name": (test) ->
@@ -346,4 +347,12 @@ exports['identifier retrieval'] = nodeunit.testCase
     ]
     test.deepEqual tokens, SearchQueryParser.tokenize(NAME_AND_BOOLEAN_FALSE)
     test.equal NAME_AND_BOOLEAN_FALSE, SearchQueryParser.build(tokens)
+    test.done()
+
+  "tokenize handles floats mixed with strings": (test) ->
+    tokens = [
+      ['something', 'equals', '10.01_broken']
+    ]
+    test.deepEqual tokens, SearchQueryParser.tokenize(MIXED_FLOAT_STRING)
+    test.equal MIXED_FLOAT_STRING, SearchQueryParser.build(tokens)
     test.done()
