@@ -15,5 +15,6 @@
     "nodeunit": "~> 0.7.0",
     "glob": "~>3.0.0",
     "q": ">=0"
-  }
+  },
+  "main": "lib/search_query_parser.js"
 }
