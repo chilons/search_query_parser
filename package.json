@@ -4,7 +4,7 @@
   "description": "A parser and serializer for Shopify's SearchQuery string format",
   "version": "0.2.2",
   "repository": {
-    "url": ""
+    "url": "git@github.com:chilons/search_query_parser.git"
   },
   "engines": {
     "node": "0.6.x || 0.7x"
