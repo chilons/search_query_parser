@@ -11,9 +11,10 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "language": "git://github.com/tolmasky/language.git#53f75464902bae56712f79a30015a0b87336a17c",
-    "nodeunit": "~> 0.7.0",
     "glob": "~>3.0.0",
+    "language": "git://github.com/tolmasky/language.git#53f75464902bae56712f79a30015a0b87336a17c",
+    "muffin-builder": "^0.9.0",
+    "nodeunit": "^0.9.1",
     "q": ">=0"
   },
   "main": "lib/search_query_parser.js"

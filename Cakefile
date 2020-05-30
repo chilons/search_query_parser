@@ -1,4 +1,4 @@
-muffin     = require 'muffin'
+muffin     = require 'muffin-builder'
 glob       = require 'glob'
 q          = require 'q'
 {exec}     = require 'child_process'

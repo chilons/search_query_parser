@@ -1,29 +1,33 @@
-start = EOF / Definitions [\s]* EOF
+start = EOF / Query [\s]* EOF
 
-Definitions = [\s]* Definition ([\s]+ Definition)*
-Definition = MatchMode? (Pair / AnyWord)
+Connective = "AND" / "OR"
+Whitespace = [\s]+
+Query = Whitespace? Term ((Whitespace Connective)? Whitespace Term)*
+Subquery = '(' Query ')'
+Term = MatchMode? (Subquery / Pair / Keyword)
 
-AnyWord = String
+Keyword = String
 Pair = BareWord ':' Operator? Attribute
 Attribute = AnyValue
 AnyValue = Date / Numeric / String
 
-Seperators = " "+ / (' '* [,|] ' '*)
-MultiValues = AnyValue (Seperators AnyValue)*
+Separator = ','
+MultiValues = AnyValue (Separator AnyValue)*
 GroupedValues = '(' MultiValues ')'
 
 MatchMode = '-' / '+'
 Numeric = Float / Integer
 String = DoubleQuotedString / SingleQuotedString / BareWord
+QuotedString = DoubleQuotedString / SingleQuotedString
 
 Operator = '<=' / '>=' / '<' / '>'
 
-BareWord = [^\s'"(:] [^ "):]*
+BareWord = [^\s,'"(:] [^ "):]*
 DoubleQuotedString = '"' [^"]* '"'
 SingleQuotedString = "'" [^']* "'"
 
 Integer = [0-9]+ & ([\s] / EOF)
-Date = [0-9] [0-9] [0-9] [0-9] "-" [0-9] [0-9]? "-" [0-9] [0-9]?
+Date = 'D' QuotedString
 Float = [0-9]+ '.' [0-9]+ ![^0-9]
 
 EOF = ! . ""

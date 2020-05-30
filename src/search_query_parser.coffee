@@ -23,64 +23,79 @@ class SearchQueryParser
     greater_than_or_equals: 'less_than_or_equals'
     less_than_or_equals: 'greater_than_or_equals'
 
-  @tokenize: (input) ->
-    tree = Parser.parse(input)
-
-    results = []
-    word = positiveMatch = key = operator = undefined
-
+  @parse: (input) ->
+    tree = Parser.parse(input.trim())
     if tree.children.length < 1
       throw new Error("Couldn't parse search query!")
+    return @transform(tree)
 
-    tree.traverse
-      traversesTextNodes: false
-      enteredNode: (node) =>
-        if node.error
-          throw new Error(node.message())
-        return switch node.name
-          when "Definition"
-            positiveMatch = true
-            key = 'default'
-            operator = 'equals'
-            true
-          when "MatchMode"
-            positiveMatch = node.innerText() == '+'
-            true
-          when "Integer"
-            word = parseInt(node.innerText(), 10)
-            false
-          when "Float"
-            word = parseFloat(node.innerText())
-            false
-          when "Date"
-            innerText = node.innerText().split('-').map (val) ->
-              parseInt(val, 10)
-            word = new Date innerText[0], innerText[1] - 1, innerText[2]
-            word = new Date word - word.getTimezoneOffset() * 1000 * 60
-            false
-          when "String"
-            if node.children[0].name == 'BareWord'
-              word = node.innerText()
-            else
-              # Lop off quotes from the quoted strings
-              word = node.innerText().slice(1, -1)
-              word = word.trim()
-            false
-          when "Operator"
-            operator = @OPERATOR_TO_TOKEN[node.innerText()]
-            false
+  @transform: (node) =>
+    if node.error
+      throw new Error(node.message())
+    return switch node.name
+      when "#document"
+        @transform(node.children[0])
+      when "start"
+        if (node.children.length > 1) then @transform(node.children[0]) else []
+      when "Query"
+        elems = node.children.filter((c) => c.name != "Whitespace").reverse()
+        current = @transform(elems.pop())
+        loop
+          next = elems.pop()
+          break if !next
+          if next.name == "Connective"
+            op = if (next.innerText() == "AND") then "and" else "or"
+            b = elems.pop()
           else
-            true
-
-      exitedNode: (node) =>
-        switch node.name
-          when "Pair"
-            key = node.children[0].innerText()
-          when "Definition"
-            operator = @NOT_TOKEN[operator] if !positiveMatch
-            results.push [key, operator, word]
-
-    results
+            op = "and"
+            b = next
+          current = [op, current, @transform(b)]
+        current
+      when "Term"
+        [c0, c1] = node.children
+        if c0.name == "MatchMode"
+          if (c0.innerText() == "-" || c0.innerText() == "NOT") then ["not", @transform(c1)] else @transform(c1)
+        else
+          @transform(c0)
+      when "Subquery"
+        @transform(node.children[1])
+      when "Keyword"
+        ["search", node.innerText()]
+      when "Pair"
+        [field, sep, operator, attr] = node.children
+        opToken = null
+        if !attr
+          attr = operator
+          opToken = "equals"
+        else
+          opToken = @OPERATOR_TO_TOKEN[operator.innerText()]
+        ["attr", [@transform(field), opToken, @transform(attr)]]
+      when "Attribute"
+        @transform(node.children[0])
+      when "AnyValue"
+        @transform(node.children[0])
+      when "BareWord"
+        node.innerText()
+      when "String"
+        @transform(node.children[0])
+      when "SingleQuotedString", "DoubleQuotedString"
+        # Lop off quotes from the quoted strings
+        word = node.innerText().slice(1, -1)
+        word.trim()
+      when "Numeric"
+        @transform(node.children[0])
+      when "Integer"
+        parseInt(node.innerText(), 10)
+      when "Float"
+        parseFloat(node.innerText())
+      when "QuotedString"
+        @transform(node.children[0])
+      when "Date"
+        new Date(@transform(node.children[1]))
+      when undefined
+        node
+      else
+        node.name
 
   @build: (tokens) ->
     results = for [key, operator, value] in tokens
