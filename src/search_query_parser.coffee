@@ -60,7 +60,7 @@ class SearchQueryParser
       when "Subquery"
         @transform(node.children[1])
       when "Keyword"
-        ["search", node.innerText()]
+        ["search", @transform(node.children[0])]
       when "Pair"
         [field, sep, operator, attr] = node.children
         opToken = null
