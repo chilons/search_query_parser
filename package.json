@@ -2,7 +2,7 @@
   "author": "Harry Brundage <harry.brundage@jadedpixel.com>",
   "name": "@wilonth/shopify-query-parser",
   "description": "A parser and serializer for Shopify's SearchQuery string format",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "repository": {
     "url": "git@github.com:chilons/search_query_parser.git"
   },
