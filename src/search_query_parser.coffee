@@ -81,7 +81,7 @@ class SearchQueryParser
       when "SingleQuotedString", "DoubleQuotedString"
         # Lop off quotes from the quoted strings
         word = node.innerText().slice(1, -1)
-        word.trim()
+        word
       when "Numeric"
         @transform(node.children[0])
       when "Integer"
